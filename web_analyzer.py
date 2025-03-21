@@ -68,7 +68,7 @@ for paragraph in paragraphs:
         longestWordCount = len(words)
         longestParagraph = text
 
-print("\nPreview of the longest paragraph (first 150 characters):")
+print("\The longest paragraph from the page:")
 print(longestParagraph)
 print(f"\nIt contains {longestWordCount} words\n")
 
