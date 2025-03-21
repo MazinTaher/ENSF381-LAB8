@@ -28,10 +28,10 @@ print(f"Number of paragraphs: {numParagraphs}")
 # Keywords Analysis
 print("Please enter a keyword that you want to search for:")
 keyword = input().strip().lower()
-text_elements = soup.find_all(text=True) # Extract all text content from paragraphs
+text_elements = soup.find_all(string=True) # Extract all text content from paragraphs
 text_content = " ".join(text.lower() for text in text_elements)
 
-keyword_count = text_content.split().count(keyword) # Count occurrences of the keyword as a whole word
+keyword_count = text_content.count(keyword) # Count occurrences of the keyword as a whole word
 print(f"The word '{keyword}' appears {keyword_count} times in the webpage's content.")
 
 # Word Frequency Analysis
@@ -40,11 +40,8 @@ words = re.findall(r'\b\w+\b', text)
 
 wordFrequency = {} # dictionary to count word frequency
 for word in words:
-    if len(word) > 1: # only count words with >1 character
-        if word in wordFrequency:
-            wordFrequency[word] += 1
-        else:
-            wordFrequency[word] = 1
+    word = word.lower()
+    wordFrequency[word] = wordFrequency.get(word, 0) + 1
 
 # Get top 5 words by frequency
 top_words = sorted(wordFrequency.items(), key=lambda x: x[1], reverse=True)[:5]
