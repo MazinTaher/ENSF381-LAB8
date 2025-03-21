@@ -1,16 +1,16 @@
 import requests
 import matplotlib.pyplot as plt
+import re
 from bs4 import BeautifulSoup
+
 url = "https://en.wikipedia.org/wiki/University_of_Calgary"
 try:
     response = requests.get(url)
-    response.raise_for_status() # Ensures the request was successful
+    response.raise_for_status()  # Ensures the request was successful
     soup = BeautifulSoup(response.text, 'html.parser')
     print(f"Successfully fetched content from {url}")
 except Exception as e:
     print(f"Error fetching content: {e}")
-
-# print(soup.prettify())
 
 # Data Analysis
 headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
@@ -28,32 +28,25 @@ print(f"Number of paragraphs: {numParagraphs}")
 # Keywords Analysis
 print("Please enter a keyword that you want to search for:")
 keyword = input().strip().lower()
-keywordCount = 0
-text = soup.get_text()
-punctuation = "`~!@#$%^&*()_+[}{]\\|;:'\"<,.>/?"
-for word in text.split():
-    cleanWord = word.strip(punctuation).lower()
-    if keyword == cleanWord:
-        keywordCount += 1
-print(f"The word '{keyword}' appears {keywordCount} times in the webpages content.")
+text_elements = soup.find_all(text=True) # Extract all text content from paragraphs
+text_content = " ".join(text.lower() for text in text_elements)
+
+keyword_count = text_content.split().count(keyword) # Count occurrences of the keyword as a whole word
+print(f"The word '{keyword}' appears {keyword_count} times in the webpage's content.")
 
 # Word Frequency Analysis
-text = soup.get_text()
-punctuation = "`~!@#$%^&*()_+[{]}\\|;:'\"<,>.?/"
-words = text.split()
-cleaned_words = []
+text = soup.get_text().lower()
+words = re.findall(r'\b\w+\b', text)
+
+wordFrequency = {} # dictionary to count word frequency
 for word in words:
-    clean_word = word.strip(punctuation).lower()
-    if clean_word: 
-        cleaned_words.append(clean_word)
+    if len(word) > 1: # only count words with >1 character
+        if word in wordFrequency:
+            wordFrequency[word] += 1
+        else:
+            wordFrequency[word] = 1
 
-wordFrequency = {}
-for word in cleaned_words:
-    if word in wordFrequency:
-        wordFrequency[word] += 1
-    else:
-        wordFrequency[word] = 1
-
+# Get top 5 words by frequency
 top_words = sorted(wordFrequency.items(), key=lambda x: x[1], reverse=True)[:5]
 
 print("\nTop 5 most frequently occurring words:")
@@ -66,7 +59,7 @@ longestWordCount = 0
 
 for paragraph in paragraphs:
     text = paragraph.get_text().strip()
-    words = text.split()
+    words = re.findall(r'\b\w+\b', text) # Use regex to find all words in the paragraph
 
     if len(words) < 5:
         continue
@@ -75,20 +68,15 @@ for paragraph in paragraphs:
         longestWordCount = len(words)
         longestParagraph = text
 
-print("\nThe longest paragraph is:\n")
+print("\nPreview of the longest paragraph (first 150 characters):")
 print(longestParagraph)
 print(f"\nIt contains {longestWordCount} words\n")
 
 # Visualizing Results
-import matplotlib.pyplot as plt
 labels = ['Headings', 'Links', 'Paragraphs']
 values = [numHeadings, numLinks, numParagraphs]
 plt.bar(labels, values)
-plt.title('1')
+plt.title('Group 1')
 plt.ylabel('Count')
+plt.savefig('wiki_analysis_chart.png')
 plt.show()
-
-
-
-
-
